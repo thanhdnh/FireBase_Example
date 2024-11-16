@@ -1,1 +1,3 @@
-<video src='Firestore.mp4' width=500/>
+[![Watch the video]](Firestore.mp4)
+
+
