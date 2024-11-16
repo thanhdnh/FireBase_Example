@@ -1,1 +1,1 @@
-[Watch the video](Firestore.mov)
+[Watch the video](Firestore.mp4)
