@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734543976421",
+    "project_id": "contactcloud-45f1a",
+    "storage_bucket": "contactcloud-45f1a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734543976421:android:edaaceaa620d4a154ec10c",
+        "android_client_info": {
+          "package_name": "vn.edu.ueh.thanhdnh.firebase_example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjKkMMjiyqAZL1XJ5-hROrYJFYZ4z9Bac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
