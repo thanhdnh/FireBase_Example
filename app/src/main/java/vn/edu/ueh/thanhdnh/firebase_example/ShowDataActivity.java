@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ShowDataActivity extends AppCompatActivity {
-  FirebaseFirestore db;
+    FirebaseFirestore db;
     RecyclerView recyclerView;
     List<User> users = new ArrayList();
 
