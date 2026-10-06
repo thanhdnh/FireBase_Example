@@ -1,10 +1,12 @@
 package vn.edu.ueh.thanhdnh.firebase_example;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -13,8 +15,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,12 +25,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ShowDataActivity extends AppCompatActivity {
-    FirebaseFirestore db;
-    RecyclerView recyclerView;
-    List<User> users = new ArrayList();
+    private FirebaseFirestore db;
+    private RecyclerView recyclerView;
+    private ArticleViewAdapter adapter;
+    private List<Article> articles = new ArrayList<>();
+    private TextView tvCount;
+    private View llEmptyState;
+    private ProgressBar progressBar;
+    private ImageButton btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,43 +48,69 @@ public class ShowDataActivity extends AppCompatActivity {
         });
 
         FirebaseApp.initializeApp(this);
-        //users.add(new User("default", "000"));
 
+        btnBack = findViewById(R.id.btnBack);
+        tvCount = findViewById(R.id.tvCount);
+        llEmptyState = findViewById(R.id.llEmptyState);
+        progressBar = findViewById(R.id.progressBar);
         recyclerView = findViewById(R.id.reclyclerview);
-        UserViewAdapter adapter = new UserViewAdapter(getBaseContext(), users);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+
+        adapter = new ArticleViewAdapter(this, articles);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
         db = FirebaseFirestore.getInstance();
-        /*db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("articles").addSnapshotListener(new EventListener<QuerySnapshot>() {
           @Override
-          public void onComplete(@NonNull Task<QuerySnapshot> task) {
-            if(task.isSuccessful()){
-              users.clear();
-              for(QueryDocumentSnapshot q : task.getResult()){
+          public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {
+            if (progressBar != null) {
+              progressBar.setVisibility(View.GONE);
+            }
+
+            if (snapshots != null) {
+              articles.clear();
+              for (QueryDocumentSnapshot q : snapshots) {
                 Map<String, Object> data = q.getData();
-                User user = new User((String)data.get("name"), (String)data.get("phone"));
-                users.add(user);
+                String title = data.containsKey("title") && data.get("title") != null ? String.valueOf(data.get("title")) : "";
+                String desc = "";
+                if (data.containsKey("description") && data.get("description") != null) {
+                  desc = String.valueOf(data.get("description"));
+                } else if (data.containsKey("content") && data.get("content") != null) {
+                  desc = String.valueOf(data.get("content"));
+                }
+                String imgCover = "";
+                if (data.containsKey("imgCover") && data.get("imgCover") != null) {
+                  imgCover = String.valueOf(data.get("imgCover"));
+                }
+                int views = 0;
+                if (data.containsKey("views") && data.get("views") != null) {
+                  try {
+                    views = ((Number) data.get("views")).intValue();
+                  } catch (Exception ignored) {
+                  }
+                }
+                String id = q.getId();
+                if (data.containsKey("id") && data.get("id") != null && !String.valueOf(data.get("id")).isEmpty()) {
+                  id = String.valueOf(data.get("id"));
+                }
+                Article article = new Article(id, title, desc, imgCover, views);
+                articles.add(article);
               }
-              adapter.update(users);
+              adapter.update(articles);
               adapter.notifyDataSetChanged();
+
+              if (tvCount != null) {
+                tvCount.setText(articles.size() + " bài viết trong Firestore");
+              }
+              if (llEmptyState != null) {
+                llEmptyState.setVisibility(articles.isEmpty() ? View.VISIBLE : View.GONE);
+              }
             }
           }
-        });*/
-      db.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {
-          if (snapshots != null) {
-            users.clear();
-            for (QueryDocumentSnapshot q : snapshots) {
-              Map<String, Object> data = q.getData();
-              User user = new User((String) data.get("name"), (String) data.get("phone"));
-              users.add(user);
-            }
-            adapter.update(users);
-            adapter.notifyDataSetChanged();
-          }
-        }
-      });
+        });
     }
 }

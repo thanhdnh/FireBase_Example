@@ -16,6 +16,9 @@
     android:theme="@style/Theme.FireBase_Example"
     tools:targetApi="31">
     <activity
+      android:name=".ArticleDetailActivity"
+      android:exported="false" />
+    <activity
       android:name=".ShowDataActivity"
       android:exported="false" />
     <activity
